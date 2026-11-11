@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RUI Weekly Tracker</title>
+<style>
+:root{--bg:#faf8f4;--card:#fff;--ink:#1f2933;--mute:#6b7280;--line:#e5e1d8;--accent:#b4531a;--accent2:#fbe9dc;--ok:#2f7d4f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17191c;--card:#202328;--ink:#eceae5;--mute:#9aa0a8;--line:#33373d;--accent:#f09a62;--accent2:#3a2a1f;--ok:#6fcf97;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17191c;--card:#202328;--ink:#eceae5;--mute:#9aa0a8;--line:#33373d;--accent:#f09a62;--accent2:#3a2a1f;--ok:#6fcf97;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0}
+.sub{color:var(--mute);font-size:13px}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.nav{display:flex;gap:6px;align-items:center}
+button,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.card h2{font-size:14px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+.theme{font-size:13px;color:var(--mute);margin:2px 0 8px}
+.day{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;padding:7px 0;border-top:1px solid var(--line);align-items:center}
+.day:first-of-type{border-top:0}
+.dn b{display:block}.dn span{font-size:12px;color:var(--mute)}
+.chk{display:flex;flex-wrap:wrap;gap:6px}
+label.c{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:13px;user-select:none}
+label.c:has(input:checked){background:var(--accent2);border-color:var(--accent);text-decoration:line-through;color:var(--mute)}
+input[type=checkbox]{accent-color:var(--ok);width:16px;height:16px;margin:0}
+.tasks label{display:flex;gap:8px;align-items:flex-start;padding:3px 0;cursor:pointer}
+.tasks label:has(input:checked) span{text-decoration:line-through;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grid label{font-size:12px;color:var(--mute);display:block}
+input[type=number],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+textarea{min-height:56px;resize:vertical;margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.foot{display:flex;justify-content:space-between;color:var(--mute);font-size:12px}
+@media (max-width:640px){.day{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+@media print{.nav button,.noprint{display:none}body{background:#fff;color:#000;font-size:12px}.card{break-inside:avoid;padding:8px}.wrap{padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>RUI Social Media: Weekly Tracker</h1><div class="sub" id="range"></div></div>
+    <div class="nav">
+      <button id="prev" aria-label="Previous week">&larr;</button>
+      <select id="sel" aria-label="Choose week"></select>
+      <button id="next" aria-label="Next week">&rarr;</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><b id="theme"></b><span id="pct" style="color:var(--ok);font-weight:600"></span></div>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="sub" id="count" style="margin-top:4px"></div>
+  </div>
+
+  <div class="card"><h2>Posts (tick each platform once it is live)</h2><div id="days"></div></div>
+
+  <div class="card tasks"><h2>Weekly tasks</h2><div id="tasks"></div></div>
+
+  <div class="card">
+    <h2>Friday numbers</h2>
+    <div class="grid">
+      <div><label for="m_reach">Total reach</label><input type="number" id="m_reach" min="0" inputmode="numeric"></div>
+      <div><label for="m_fol">New followers</label><input type="number" id="m_fol" min="0" inputmode="numeric"></div>
+      <div><label for="m_com">Comments + messages</label><input type="number" id="m_com" min="0" inputmode="numeric"></div>
+      <div><label for="m_enq">Enquiries / registrations</label><input type="number" id="m_enq" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="two">
+      <div><textarea id="wins" placeholder="Wins this week" aria-label="Wins"></textarea></div>
+      <div><textarea id="fix" placeholder="What slipped, why, and who fixes it by when" aria-label="What slipped"></textarea></div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Ticks and notes save on this device.</span><span class="noprint"><button id="print">Print</button> <button id="reset">Clear this week</button></span></div>
+</div>
+
+<script>
+var P={Mon:["Facebook","Instagram","LinkedIn"],Tue:["Facebook","Instagram","LinkedIn"],Wed:["Facebook","Instagram","TikTok"],Thu:["Facebook","Instagram","LinkedIn","TikTok"],Fri:["Facebook","Instagram","TikTok"],Sun:["Facebook","Instagram"]};
+var N={Mon:"Vision Monday",Tue:"Program Tuesday",Wed:"Field Wednesday",Thu:"Meet the Team Thursday",Fri:"Testimony Friday",Sun:"Give and Pray Sunday"};
+var T={Mon:"7:30 pm (LI 4 pm)",Tue:"12:30 pm (LI 4 pm)",Wed:"7:30 pm",Thu:"12:30 pm (LI 4 pm)",Fri:"7:30 pm",Sun:"9:00 am"};
+var OFF={Mon:0,Tue:1,Wed:2,Thu:3,Fri:4,Sun:6};
+var W=[
+["2026-11-09","Why we start with teachers","Mon Tue Wed Fri Sun",["Schedule tonight's quote card (7:30 pm, LinkedIn 4 pm)","Set up shared folder, consent form and templates","Record 3 to 4 testimony videos with consent"]],
+["2026-11-16","Meet the people behind the work","Mon Tue Thu Fri",["Collect 5 photos and 1 clip from each sub-region","Draft December newsletter outline"]],
+["2026-11-23","Gratitude and the end of the school year","Mon Tue Wed Fri Sun",["Record Founder's December video","Finish December newsletter draft (by Wed)","Monthly review and December planning (Fri)","Prepare Giving Tuesday graphics"]],
+["2026-11-30","A gift becomes training","Mon Tue Thu Fri Sun",["Send December newsletter (Tue) and promote on LinkedIn and Facebook","Giving Tuesday: post and reply to every donor message"]],
+["2026-12-07","Vision for the year ahead","Mon Tue Wed Fri Sun",["Founder's video live (Mon), 15-second TikTok cut posted","Registration call live for next Renewal Gathering"]],
+["2026-12-14","Our four commitments","Mon Tue Thu Fri Sun",["Record Founder's January video","December review (Fri, moved forward)","Schedule ALL Christmas-week posts"]],
+["2026-12-21","Christmas and thanks (light week)","Mon Tue Wed Thu Fri Sun",["Confirm all posts are scheduled before the team break","Assign one person to watch messages 25 to 27 Dec"]],
+["2026-12-28","Looking ahead to 2027","Mon Tue Thu Fri Sun",["Draft January newsletter","Confirm dates for Feb gatherings and intake"]],
+["2027-01-04","A fresh start for educators","Mon Tue Wed Fri Sun",["Founder's video live (Mon)","Send January newsletter (Tue) and promote it","Check each platform's insights and adjust posting times"]],
+["2027-01-11","Growing as an educator","Mon Tue Thu Fri Sun",["Collect new testimonies for the Jan 29 compilation","Review which post types perform best"]],
+["2027-01-18","Come and join us","Mon Tue Wed Fri",["Registration countdown post live","Gather clips for the testimony compilation video"]],
+["2027-01-25","Thank you and what is next","Mon Tue Thu Fri Sun",["Record February Founder's video","January review (Fri 29) against the three goals","Plan February content calendar"]]
+];
+var BASE=["Next week's posts written, designed, consent checked and approved (Fri by 3 pm)","Monday to Wednesday posts scheduled (Sun evening)","Thursday to Sunday posts scheduled (Wed)","Every comment and message answered within 24 hours","Instagram Stories shared on most days","Friday numbers filled in above"];
+var KEY="rui_tracker_v1",store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){store={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+function d(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2])}
+function fmt(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+function add(x,n){var y=new Date(x);y.setDate(y.getDate()+n);return y}
+var cur=0,now=new Date();
+for(var i=0;i<W.length;i++){if(now>=d(W[i][0]))cur=i}
+var sel=document.getElementById("sel");
+W.forEach(function(w,i){var o=document.createElement("option");o.value=i;o.textContent="Week "+(i+1)+": "+fmt(d(w[0]))+" to "+fmt(add(d(w[0]),6));sel.appendChild(o)});
+function wk(i){if(!store[i])store[i]={c:{},m:{}};return store[i]}
+function render(){
+  var w=W[cur],s=wk(cur),st=d(w[0]);sel.value=cur;
+  document.getElementById("range").textContent="Week "+(cur+1)+" of 12 · "+fmt(st)+" to "+fmt(add(st,6))+" · East Africa Time";
+  document.getElementById("theme").textContent="Theme: "+w[1];
+  var dh="",ids=[];
+  w[2].split(" ").forEach(function(k){
+    var dt=add(st,OFF[k]);
+    dh+='<div class="day"><div class="dn"><b>'+k+" "+fmt(dt)+'</b><span>'+N[k]+" · "+T[k]+'</span></div><div class="chk">';
+    P[k].forEach(function(p){var id="p_"+k+"_"+p;ids.push(id);dh+='<label class="c"><input type="checkbox" data-k="'+id+'"'+(s.c[id]?" checked":"")+'>'+p+'</label>'});
+    dh+="</div></div>";
+  });
+  document.getElementById("days").innerHTML=dh;
+  var th="",tl=BASE.concat(w[3]);
+  tl.forEach(function(t,j){var id="t_"+j;ids.push(id);th+='<label><input type="checkbox" data-k="'+id+'"'+(s.c[id]?" checked":"")+'><span>'+t+"</span></label>"});
+  document.getElementById("tasks").innerHTML=th;
+  ["reach","fol","com","enq"].forEach(function(k){document.getElementById("m_"+k).value=s.m[k]||""});
+  document.getElementById("wins").value=s.m.wins||"";
+  document.getElementById("fix").value=s.m.fix||"";
+  document.querySelectorAll("input[data-k]").forEach(function(el){el.onchange=function(){s.c[el.dataset.k]=el.checked;save();prog()}});
+  window._ids=ids;prog();
+}
+function prog(){
+  var s=wk(cur),ids=window._ids,done=ids.filter(function(i){return s.c[i]}).length,p=ids.length?Math.round(done/ids.length*100):0;
+  document.getElementById("fill").style.width=p+"%";
+  document.getElementById("pct").textContent=p+"%";
+  document.getElementById("count").textContent=done+" of "+ids.length+" items done";
+}
+["reach","fol","com","enq"].forEach(function(k){document.getElementById("m_"+k).oninput=function(e){wk(cur).m[k]=e.target.value;save()}});
+document.getElementById("wins").oninput=function(e){wk(cur).m.wins=e.target.value;save()};
+document.getElementById("fix").oninput=function(e){wk(cur).m.fix=e.target.value;save()};
+sel.onchange=function(){cur=+sel.value;render()};
+document.getElementById("prev").onclick=function(){if(cur>0){cur--;render()}};
+document.getElementById("next").onclick=function(){if(cur<W.length-1){cur++;render()}};
+document.getElementById("print").onclick=function(){window.print()};
+document.getElementById("reset").onclick=function(){if(confirm("Clear all ticks and notes for this week?")){delete store[cur];save();render()}};
+render();
+</script>
+</body>
+</html>
